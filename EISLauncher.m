@@ -163,26 +163,33 @@ function EISLauncher
                 'String','Return',...
                 'Callback',@callback);%#ok
         
-        Close_P = uicontrol('Parent',PPanel,...
+        Export_P = uicontrol('Parent',PPanel,...
                 'units','normalized',...
                 'Position',[0.905 0.02 0.09 0.061],...
                 'FontSize',13,...
-                'String','Close',...
-                'Callback','delete(gcf)');%#ok
+                'String','Export',...
+                'Callback',@exportplotter);%#ok
             
         PViewData = uicontrol('Parent',PPanel,...
                 'units','normalized',...
                 'Style','popupmenu',...
                 'FontSize',13,...
-                'Position',[0.2 0.905 0.6 0.09],...
+                'Position',[0.2 0.905 0.505 0.09],...
                 'string','Select data to view');
             
         PAddData = uicontrol('Parent',PPanel,...
                 'units','normalized',...
-                'Position',[0.806 0.952 0.09 0.045],...
+                'Position',[0.711 0.952 0.09 0.045],...
                 'FontSize',13,...
                 'String','Plot',...
                 'Callback',@adddata);%#ok
+            
+        PAddAllData = uicontrol('Parent',PPanel,...
+                'units','normalized',...
+                'Position',[0.806 0.952 0.09 0.045],...
+                'FontSize',13,...
+                'String','Plot All',...
+                'Callback',@addalldata);%#ok
             
         PClearGraph = uicontrol('Parent',PPanel,...
                 'units','normalized',...
@@ -207,11 +214,11 @@ function EISLauncher
 
         %Create panels for the x and y axis controls
         P1Panel = uipanel('parent',PPanel,'units','normalized','Position',...
-                    [0.16 0.02 0.24 0.14],'Title','x-axis','FontSize',12);
+                    [0.16 0.02 0.24 0.14],'Title','X-axis','FontSize',12);
         P2Panel = uipanel('parent',PPanel,'units','normalized','Position',...
-                    [0.41 0.02 0.24 0.14],'Title','y-axis top','FontSize',12);
+                    [0.41 0.02 0.24 0.14],'Title','Y-axis top','FontSize',12);
         P3Panel = uipanel('parent',PPanel,'units','normalized','Position',...
-                    [0.66 0.02 0.24 0.14],'Title','y-axis bottom','FontSize',12,'visible','off');
+                    [0.66 0.02 0.24 0.14],'Title','Y-axis bottom','FontSize',12,'visible','off');
         
         %Setup graph axis control for each panel
         P1Min = uicontrol('Parent',P1Panel,'units','normalized','Style','text',...
@@ -227,60 +234,52 @@ function EISLauncher
         P3Max = uicontrol('Parent',P3Panel,'units','normalized','Style','text',...
                 'FontSize',13,'Position',[0 0.48 0.2 0.4],'string','Max');%#ok
         P1MinVal = uicontrol('Parent',P1Panel,'units','normalized','Style','edit',...
-                'FontSize',13,'Position',[0.2 0.05 0.2 0.4],'KeyPressFcn',@xchange);
+                'FontSize',13,'Position',[0.2 0.05 0.36 0.4],'KeyPressFcn',@xchange);
         P1MaxVal = uicontrol('Parent',P1Panel,'units','normalized','Style','edit',...
-                'FontSize',13,'Position',[0.2 0.55 0.2 0.4],'KeyPressFcn',@xchange);
+                'FontSize',13,'Position',[0.2 0.55 0.36 0.4],'KeyPressFcn',@xchange);
         P2MinVal = uicontrol('Parent',P2Panel,'units','normalized','Style','edit',...
-                'FontSize',13,'Position',[0.2 0.05 0.2 0.4],'KeyPressFcn',@y1change);
+                'FontSize',13,'Position',[0.2 0.05 0.36 0.4],'KeyPressFcn',@y1change);
         P2MaxVal = uicontrol('Parent',P2Panel,'units','normalized','Style','edit',...
-                'FontSize',13,'Position',[0.2 0.55 0.2 0.4],'KeyPressFcn',@y1change);
+                'FontSize',13,'Position',[0.2 0.55 0.36 0.4],'KeyPressFcn',@y1change);
         P3MinVal = uicontrol('Parent',P3Panel,'units','normalized','Style','edit',...
-                'FontSize',13,'Position',[0.2 0.05 0.2 0.4],'KeyPressFcn',@y2change);
+                'FontSize',13,'Position',[0.2 0.05 0.36 0.4],'KeyPressFcn',@y2change);
         P3MaxVal = uicontrol('Parent',P3Panel,'units','normalized','Style','edit',...
-                'FontSize',13,'Position',[0.2 0.55 0.2 0.4],'KeyPressFcn',@y2change);
+                'FontSize',13,'Position',[0.2 0.55 0.36 0.4],'KeyPressFcn',@y2change);
         
         %Scale change options for x axis    
-        xbg = uibuttongroup(P1Panel,'units','normalized','Position',[0.5 0 1 1],...
+        xbg = uibuttongroup(P1Panel,'units','normalized','Position',[0.6 0 0.4 1],...
                 'Title','Scale','BorderType','beveledin','SelectionChangedFcn',@xselection);
         xlog = uicontrol(xbg,'Style','radiobutton','String','Logarithmic','units','normalized',...
-                'Position',[0.02 0.5 1 0.5],'HandleVisibility','off','Tag','log');    
+                'Position',[0.02 0.5 1 0.5],'HandleVisibility','off','Tag','log');  
         xlin = uicontrol(xbg,'Style','radiobutton','String','Linear','units','normalized',...
-                'Position',[0.02 0 1 0.5],'HandleVisibility','off','Tag','lin');%#ok
-        %Set default scale as logarithmic    
-        set(xbg,'SelectedObject',xlog);    
-        
+                'Position',[0.02 0 1 0.5],'HandleVisibility','off','Tag','lin');
         
         %Scale change options for y axis top graph    
-        ytbg = uibuttongroup(P2Panel,'units','normalized','Position',[0.5 0 1 1],...
+        ytbg = uibuttongroup(P2Panel,'units','normalized','Position',[0.6 0 0.4 1],...
                 'Title','Scale','BorderType','beveledin','SelectionChangedFcn',@ytselection);
         ytlog = uicontrol(ytbg,'Style','radiobutton','String','Logarithmic','units','normalized',...
                 'Position',[0.02 0.5 1 0.5],'HandleVisibility','off','Tag','log');    
         ytlin = uicontrol(ytbg,'Style','radiobutton','String','Linear','units','normalized',...
-                'Position',[0.02 0 1 0.5],'HandleVisibility','off','Tag','lin');%#ok
-        %Set default scale as logarithmic    
-        set(ytbg,'SelectedObject',ytlog); 
+                'Position',[0.02 0 1 0.5],'HandleVisibility','off','Tag','lin');
             
-        %Scale change options for y axis top graph     
-        ybbg = uibuttongroup(P3Panel,'units','normalized','Position',[0.5 0 1 1],...
+        %Scale change options for y axis bottom graph     
+        ybbg = uibuttongroup(P3Panel,'units','normalized','Position',[0.6 0 0.4 1],...
                 'Title','Scale','BorderType','beveledin','SelectionChangedFcn',@ybselection);
         yblog = uicontrol(ybbg,'Style','radiobutton','String','Logarithmic','units','normalized',...
-                'Position',[0.02 0.5 1 0.5],'HandleVisibility','off','Tag','log');    
+                'Position',[0.02 0.5 1 0.5],'HandleVisibility','off','Tag','log');%#ok    
         yblin = uicontrol(ybbg,'Style','radiobutton','String','Linear','units','normalized',...
-                'Position',[0.02 0 1 0.5],'HandleVisibility','off','Tag','lin');%#ok
-        %Set default scale as logarithmic    
-        set(ybbg,'SelectedObject',yblog); 
+                'Position',[0.02 0 1 0.5],'HandleVisibility','off','Tag','lin');
             
-        %Call Graph setup function
-        setupgraphs
+        %Initial Graph setup 
+        PGrh11 = axes('parent',PPanel,'Units','normalized','Position',[0.06 0.23 0.91 0.71],'visible','off');
+        PGrh21 = axes('parent',PPanel,'Units','normalized','Position',[0.06 0.59 0.91 0.34],'visible','off');
+        PGrh22 = axes('parent',PPanel,'Units','normalized','Position',[0.06 0.23 0.91 0.34],'visible','off');
+        
+        %Refill the axis control fields
         updatefields
         
-        %Auxillery code to give PGrh11/21/22 global access
-        if o.Grph == 1
-            get(PGrh11,'Type');%#ok
-        elseif o.Grph == 2
-            get(PGrh21,'Type');%#ok
-            get(PGrh22,'Type');%#ok
-        end
+        %Setup the graph details/controls
+        setupgraphs
 
         %Code to change the y axis limits(Nyquist & Bode top)
         function y1change(~,~)
@@ -299,13 +298,13 @@ function EISLauncher
                 
             elseif o.Grph == 2
                 %Gather as-is and to-be values
-                currentyaxis = ylim(PGrh22);
+                currentyaxis = ylim(PGrh21);
                 requestmin = str2double(get(P2MinVal,'string'));
                 requestmax = str2double(get(P2MaxVal,'string'));
 
                 %Check if values makes sense and update
                 if (requestmin < currentyaxis(2)) && (requestmax > currentyaxis(1)) 
-                    PGrh22.YLim = [requestmin requestmax];
+                    PGrh21.YLim = [requestmin requestmax];
                 else
                     disp('Please enter suitable values')
                 end
@@ -315,13 +314,13 @@ function EISLauncher
         %Code to change the bottom yaxis limits
         function y2change(~,~)
             %Gather as-is and to-be values
-            currentyaxis = ylim(PGrh21);
+            currentyaxis = ylim(PGrh22);
             requestmin = str2double(get(P3MinVal,'string'));
             requestmax = str2double(get(P3MaxVal,'string'));
 
             %Check if values makes sense and update
             if (requestmin < currentyaxis(2)) && (requestmax > currentyaxis(1)) 
-                PGrh21.YLim = [requestmin requestmax];
+                PGrh22.YLim = [requestmin requestmax];
             else
                 disp('Please enter suitable values')
             end            
@@ -370,9 +369,9 @@ function EISLauncher
             elseif o.Grph == 2
                 switch get(get(ytbg,'SelectedObject'),'Tag')
                     case 'log'
-                    PGrh22.YScale = 'log';
+                    PGrh21.YScale = 'log';
                     case 'lin' 
-                    PGrh22.YScale = 'linear';
+                    PGrh21.YScale = 'linear';
                 end
             end
             updatefields
@@ -381,8 +380,8 @@ function EISLauncher
         %Code to change bottom y axis scale
         function ybselection(~,~)
             switch get(get(ybbg,'SelectedObject'),'Tag')
-                case 'log', PGrh21.YScale = 'log';
-                case 'lin', PGrh21.YScale = 'linear';
+                case 'log', PGrh22.YScale = 'log';
+                case 'lin', PGrh22.YScale = 'linear';
             end
             updatefields
             
@@ -425,21 +424,87 @@ function EISLauncher
                 real = data(:,2);
                 imag = -data(:,3);
                 
+                %Code to check data length
+                if length(real) == length(imag)
+                else
+                    warndlg('Data length mismatch. Please check raw data')
+                    return
+                end
+                
+                %Code to convert real/img to gain and phase
+                for i=1:length(real)
+                    data(i,4) = sqrt((real(i))^2 + (imag(i))^2);
+                    data(i,5) = atan(imag(i)/ real(i));
+                end
+
+                mag = data(:,4);
+                phase = data(:,5);
+                
                 if o.Grph == 1
+                   hold(PGrh11,'on')
                    plot(PGrh11,real,imag)
                    xselection;
                    ytselection;
                    hold(PGrh11,'on')
                 elseif o.Grph == 2
-                   plot(PGrh21,freq,real)
-                   plot(PGrh22,freq,imag)
+                   hold(PGrh21,'on')
+                   hold(PGrh22,'on')
+                   plot(PGrh21,freq,mag)
+                   plot(PGrh22,freq,phase)
                    xselection;
                    ytselection;
                    ybselection;
                    hold(PGrh21,'on')
                    hold(PGrh22,'on')
                 end
+                updatefields
             end 
+        end
+        
+        %Function to add all data points
+        function addalldata(~,~)
+            for j=1:length(s.Data)
+               data = s.Data(j).rawData;
+                
+                freq = data(:,1);
+                real = data(:,2);
+                imag = -data(:,3);
+                
+                %Code to check data length
+                if length(real) == length(imag)
+                else
+                    warndlg('Data length mismatch. Please check raw data')
+                    return
+                end
+                
+                %Code to convert real/img to gain and phase
+                for i=1:length(real)
+                    data(i,4) = sqrt((real(i))^2 + (imag(i))^2);
+                    data(i,5) = atan(imag(i)/ real(i));
+                end
+
+                mag = data(:,4);
+                phase = data(:,5);
+                
+                if o.Grph == 1
+                   hold(PGrh11,'on')
+                   plot(PGrh11,real,imag)
+                   xselection;
+                   ytselection;
+                   hold(PGrh11,'on')
+                elseif o.Grph == 2
+                   hold(PGrh21,'on')
+                   hold(PGrh22,'on')
+                   plot(PGrh21,freq,mag)
+                   plot(PGrh22,freq,phase)
+                   xselection;
+                   ytselection;
+                   ybselection;
+                   hold(PGrh21,'on')
+                   hold(PGrh22,'on')
+                end
+                updatefields 
+            end
         end
         
         %Function to clear graph data
@@ -456,12 +521,15 @@ function EISLauncher
         
         %Code to change the graph type
         function changegraph(~,~)
-            %Delete existing graphs
+            %Clear plotted graph data
+            cleargraph
+            
+            %Hide existing graphs
             if o.Grph == 1
-                delete(PGrh11)
+                set(PGrh11,'visible','off')
             elseif o.Grph == 2
-                delete(PGrh21)
-                delete(PGrh22)
+                set(PGrh21,'visible','off')
+                set(PGrh22,'visible','off')
             end
             
             % Construct a question dialog
@@ -491,33 +559,48 @@ function EISLauncher
             if o.Grph == 1
                 set(PIdentifier,'string','- Nyquist')
                 set(P3Panel,'visible','off')
-                set(P2Panel,'Title','y-axis')
-                PGrh11 = axes('parent',PPanel,'Units','normalized','Position',[0.06 0.23 0.91 0.71]);
+                set(P2Panel,'Title','Y-axis')
+                set(PGrh11,'visible','on')
                 PGrh11.XLabel.String = 'Zre (ohm)';
                 PGrh11.XLabel.FontSize = 12;
                 PGrh11.YLabel.String = '-Zim (ohm)';
                 PGrh11.YLabel.FontSize = 12;
-                PGrh11.XScale = 'log';
-                PGrh11.YScale = 'log';
+                PGrh11.XScale = 'linear';
+                PGrh11.YScale = 'linear';
+                PGrh11.XGrid = 'on';
+                PGrh11.YGrid = 'on';
+                
+                %Set default x and y scales as linear    
+                set(xbg,'SelectedObject',xlin);  
+                set(ytbg,'SelectedObject',ytlin);
                 
             elseif o.Grph == 2
                 set(PIdentifier,'string','- Bode')
                 set(P3Panel,'visible','on')
-                set(P2Panel,'Title','y-axis top')
-                set(P3Panel,'Title','y-axis bottom')
-                PGrh21 = axes('parent',PPanel,'Units','normalized','Position',[0.06 0.23 0.91 0.34]);
-                PGrh22 = axes('parent',PPanel,'Units','normalized','Position',[0.06 0.59 0.91 0.34]);
-                PGrh21.XLabel.String = 'Frequency(w)';
+                set(P2Panel,'Title','Y-axis top')
+                set(P3Panel,'Title','Y-axis bottom')
+                set(PGrh21,'visible','on')
+                set(PGrh22,'visible','on')
+                PGrh22.XLabel.String = 'Frequency(Hz)';
                 PGrh21.XLabel.FontSize = 12;
-                PGrh22.XColor = 'none';
+                PGrh21.XColor = 'none';
                 PGrh21.YLabel.String = 'Gain(dB)';
                 PGrh21.YLabel.FontSize = 12;
-                PGrh22.YLabel.String = 'Phase';
+                PGrh22.YLabel.String = 'Phase(\Theta)';
                 PGrh22.YLabel.FontSize = 12;
                 PGrh21.XScale = 'log';
                 PGrh21.YScale = 'log';
                 PGrh22.XScale = 'log';
-                PGrh22.YScale = 'log';                
+                PGrh22.YScale = 'linear';
+                PGrh21.XGrid = 'on';
+                PGrh21.YGrid = 'on';
+                PGrh22.XGrid = 'on';
+                PGrh22.YGrid = 'on';
+                
+                %Set default x and y scales    
+                set(xbg,'SelectedObject',xlog);
+                set(ytbg,'SelectedObject',ytlog);
+                set(ybbg,'SelectedObject',yblin);
             end
         end
         
@@ -536,11 +619,11 @@ function EISLauncher
                 set(P1MinVal,'string',num2str(currentxaxis(1)));
                 set(P1MaxVal,'string',num2str(currentxaxis(2)));
 
-                currentytaxis = ylim(PGrh22);
+                currentytaxis = ylim(PGrh21);
                 set(P2MinVal,'string',num2str(currentytaxis(1)));
                 set(P2MaxVal,'string',num2str(currentytaxis(2)));
                 
-                currentybaxis = ylim(PGrh21);
+                currentybaxis = ylim(PGrh22);
                 set(P3MinVal,'string',num2str(currentybaxis(1)));
                 set(P3MaxVal,'string',num2str(currentybaxis(2)));                
             end                
@@ -561,6 +644,14 @@ function EISLauncher
             
             goback(1);
         end 
+        
+        %Function to export the current plotted data
+        function exportplotter(~,~) 
+            if o.Grph == 1
+            elseif o.Grph == 2
+            end
+            disp('Export under development!')
+        end
     end
             
     function selectmodel(~,~)
